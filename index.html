@@ -1,0 +1,225 @@
+<div class="wrap">
+
+  <header>
+    <div class="badge">🎴 オリパ攻略ツール</div>
+    <h1>オリパ甘さ判定ツール</h1>
+    <p>数値をスライダーで直感的に調整！<strong>「引くべきか、やめとくべきか」</strong>をぶった斬ります</p>
+  </header>
+
+  <!-- ===== 全体甘さメーター（結果） ===== -->
+  <div class="meter-card">
+    <div class="meter-labels">
+      <span class="meter-label-left">💀 渋い（辛口）</span>
+      <span class="meter-label-right">激アツ（甘口）🎉</span>
+    </div>
+    <div class="meter-wrap">
+      <div class="meter-tooltip" id="meterTooltip">必須項目を入力してください</div>
+      <input type="range" id="sweetMeter" min="0" max="100" value="50" readonly />
+    </div>
+  </div>
+
+  <!-- ===== 判定結果 ===== -->
+  <div id="resultTop" class="result-top" style="display:none">
+
+    <!-- 判定カード -->
+    <div class="verdict-card" id="verdictCard">
+      <div class="vc-em"    id="vcEm"></div>
+      <div class="vc-title" id="vcTitle"></div>
+      <div class="vc-sub"   id="vcSub"></div>
+    </div>
+
+    <!-- ボーダー金額（ツッコミ付き） -->
+    <div class="border-card">
+      <div class="bc-eyebrow">プラスにするために、的中させなければならない景品の価値</div>
+      <div class="bc-val" id="bcVal">—</div>
+      <div class="bc-tsukkomi" id="bcTsukkomi"></div>
+    </div>
+
+    <!-- サブ指標 -->
+    <div class="key-grid">
+      <div class="key-card purple">
+        <div class="key-label">🔑 1回あたりの平均回収</div>
+        <div class="key-val"  id="kRecoverVal">—</div>
+        <div class="key-note" id="kRecoverNote">コイン</div>
+      </div>
+      <div class="key-card blue">
+        <div class="key-label">💸 大当たりへの実質コスト</div>
+        <div class="key-val"  id="kCostVal">—</div>
+        <div class="key-note">コイン / 回</div>
+      </div>
+    </div>
+
+    <!-- 残り口数補正 -->
+    <div class="remain-box" id="remainBox" style="display:none">
+      <div class="remain-title">📊 残り口数から見た期待値</div>
+      <div class="remain-row">
+        <div class="remain-item">
+          <div class="remain-label">残り総額</div>
+          <div class="remain-val" id="rTotal">—</div>
+        </div>
+        <div class="remain-item">
+          <div class="remain-label">期待回収額</div>
+          <div class="remain-val" id="rRecover">—</div>
+        </div>
+        <div class="remain-item">
+          <div class="remain-label">期待実質出費</div>
+          <div class="remain-val" id="rCost">—</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== 入力前ガイド ===== -->
+  <div class="empty-state" id="emptyState">
+    <div class="es-icon">📝</div>
+    <div class="es-text">
+      <strong>「1回あたりの価格」「小当たり」</strong>を入力すると、<br>
+      この場所に判定結果とツッコミがリアルタイムで表示されます。
+    </div>
+  </div>
+
+  <!-- ===== 入力フォーム ===== -->
+  <div class="card">
+    <div class="sec-head">
+      <span class="sec-badge req">必須</span>
+      <span class="sec-title">基本情報</span>
+    </div>
+
+    <div class="field" style="margin-bottom:18px">
+      <label for="costPerSpin">1回あたりの価格</label>
+      <div class="iw">
+        <input type="number" id="costPerSpin" placeholder="例：280" min="1" inputmode="numeric" />
+        <span class="iu">円</span>
+      </div>
+    </div>
+
+    <!-- 小当たり -->
+    <div class="tier-block req-block">
+      <div class="tier-header">
+        <span class="tier-icon small">⚡</span>
+        <span class="tier-name">小当たり</span>
+        <span class="tier-badge req-tag">必須</span>
+      </div>
+      <div class="tier-inputs">
+        <div class="field">
+          <label>戻ってくるコイン数</label>
+          <div class="iw">
+            <input type="number" id="smallCoin" placeholder="320" min="0" inputmode="numeric" />
+            <span class="iu">コイン</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="prob-header">
+            <label>確率</label>
+            <span class="prob-badge" id="smallProbBadge"></span>
+          </div>
+          <div class="iw">
+            <!-- テキスト入力（分数対応） -->
+            <input type="text" id="smallProbTxt" placeholder="例: 75.5 または 3/4" inputmode="text" />
+          </div>
+          <!-- スライダー入力 -->
+          <div class="prob-slider-wrap">
+            <input type="range" id="smallProbSlider" class="prob-slider purple-slider" min="0" max="100" step="0.1" value="0" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ハズレ -->
+    <div class="tier-block opt-block lose-block">
+      <div class="tier-header">
+        <span class="tier-icon lose">💀</span>
+        <span class="tier-name">ハズレ</span>
+        <span class="tier-badge opt-tag">任意</span>
+        <span class="tier-hint">わかれば入力してください</span>
+      </div>
+      <div class="tier-inputs">
+        <div class="field">
+          <label>戻ってくるコイン数</label>
+          <div class="iw">
+            <input type="number" id="loseCoin" placeholder="わかれば入力" min="0" inputmode="numeric" />
+            <span class="iu">コイン</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="prob-header">
+            <label>確率</label>
+            <span class="prob-badge" id="loseProbBadge"></span>
+          </div>
+          <div class="iw">
+            <input type="text" id="loseProbTxt" placeholder="未入力で自動計算" inputmode="text" />
+          </div>
+          <div class="prob-slider-wrap">
+            <input type="range" id="loseProbSlider" class="prob-slider red-slider" min="0" max="100" step="0.1" value="0" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中当たり -->
+    <div class="tier-block opt-block">
+      <div class="tier-header">
+        <span class="tier-icon mid">✨</span>
+        <span class="tier-name">中当たり</span>
+        <span class="tier-badge opt-tag">任意</span>
+        <span class="tier-hint">ない場合は空欄でOK</span>
+      </div>
+      <div class="tier-inputs">
+        <div class="field">
+          <label>戻ってくるコイン数</label>
+          <div class="iw">
+            <input type="number" id="midCoin" placeholder="未入力でOK" min="0" inputmode="numeric" />
+            <span class="iu">コイン</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="prob-header">
+            <label>確率</label>
+            <span class="prob-badge" id="midProbBadge"></span>
+          </div>
+          <div class="iw">
+            <input type="text" id="midProbTxt" placeholder="未入力でOK" inputmode="text" />
+          </div>
+          <div class="prob-slider-wrap">
+            <input type="range" id="midProbSlider" class="prob-slider cyan-slider" min="0" max="100" step="0.1" value="0" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card opt-card">
+    <div class="sec-head">
+      <span class="sec-badge opt">任意</span>
+      <span class="sec-title">口数情報 <small>入力すると残り期待値も表示</small></span>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="totalCount">総口数</label>
+        <div class="iw">
+          <input type="number" id="totalCount" placeholder="100" min="1" inputmode="numeric" />
+          <span class="iu">口</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="remainCount">残り口数</label>
+        <div class="iw">
+          <input type="number" id="remainCount" placeholder="60" min="1" inputmode="numeric" />
+          <span class="iu">口</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+   <footer>
+    <p>本ツールは参考情報の提供を目的としています。<br>オリパはエンタメです☆（ゝω・）vｷｬﾋﾟ<br>予算内で楽しみましょう。<br>
+      
+      <br>このツールは主に、「オリくじ」さんの入場制限台を打つかどうかをヌシが判断するために作りました
+      <br>応用が効くと思うのでガンガン使ってください
+      <br>
+      <br>
+    </p>
+  </footer>
+</div>
+
