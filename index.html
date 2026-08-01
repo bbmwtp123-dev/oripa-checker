@@ -231,7 +231,25 @@
     .es-icon { font-size: 2.4rem; margin-bottom: 10px; opacity: .32; }
     .es-text { font-size: .84rem; line-height: 1.9; }
 
-    footer { text-align: center; padding: 36px 0 10px; font-size: .66rem; color: rgba(238,238,245,.15); line-height: 1.8; }
+   /* フッター免責事項を大きく見やすくカスタマイズ */
+    footer {
+      text-align: center;
+      padding: 40px 16px 20px;
+    }
+    .disclaimer-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 0 auto;
+      max-width: 100%;
+    }
+    .disclaimer-box p {
+      font-size: 0.8rem;             /* 文字サイズを大きくする（元は0.66rem程度） */
+      color: rgba(238, 238, 245, 0.6); /* 少し明るくして読みやすくする */
+      line-height: 1.8;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -415,7 +433,13 @@
   </div>
 
   <footer>
-    <p>本ツールは参考情報の提供を目的としています。オリパはエンタメです。予算内で楽しみましょう。</p>
+    <p>本ツールは参考情報の提供を目的としています。
+      <br>☆オリパはエンタメです☆（ゝω・）vｷｬﾋﾟ
+
+
+
+      
+       <br>予算内で楽しみましょう。</p>
   </footer>
 </div>
 
