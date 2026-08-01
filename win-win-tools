@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ツールのタイトル</title>
+  
+  <!-- 【CSS】ここに見た目のデザインをすべて書く -->
+  <style>
+    body {
+      background-color: #09090f;
+      color: #fff;
+      font-family: sans-serif;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #09090f;
+  --bg2:    rgba(255,255,255,.035);
+  --bg3:    rgba(255,255,255,.07);
+  --bd:     rgba(255,255,255,.08);
+  --text:   #eeeef5;
+  --muted:  rgba(238,238,245,.4);
+  --gold:   #f5c542; --gold2:   #e8a500;
+  --purple: #9b6dff; --purple2: #6c3fc5;
+  --red:    #ff4d6d; --red2:    #b02a40;
+  --cyan:   #00d4ff; --cyan2:   #0099bb;
+  --green:  #00e676;
+  --yellow: #ffd740;
+  --r: 16px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: "Noto Sans JP","Outfit",sans-serif;
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse 70% 50% at 10% 5%,  rgba(155,109,255,.11) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 40% at 90% 90%, rgba(245,197,66,.08)  0%, transparent 60%);
+}
+.wrap { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 24px 16px 80px; }
+
+/* ヘッダー */
+header { text-align: center; padding: 36px 0 28px; }
+.badge { display: inline-block; background: linear-gradient(135deg, var(--purple2), var(--gold2)); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .14em; padding: 4px 14px; border-radius: 99px; margin-bottom: 14px; text-transform: uppercase; }
+h1 { font-family: "Outfit", sans-serif; font-size: clamp(1.7rem, 5vw, 2.6rem); font-weight: 900; line-height: 1.1; background: linear-gradient(135deg, #fff 0%, var(--gold) 50%, var(--purple) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
+header p { color: var(--muted); font-size: .88rem; line-height: 1.7; }
+header p strong { -webkit-text-fill-color: var(--gold); color: var(--gold); }
+
+/* 全体甘さメーター */
+.meter-card { background: var(--bg2); border: 1px solid var(--bd); border-radius: var(--r); padding: 18px 20px 24px; margin-bottom: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+.meter-labels { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.meter-label-left  { font-size: .72rem; font-weight: 700; color: rgba(255,77,109,.9); }
+.meter-label-right { font-size: .72rem; font-weight: 700; color: rgba(0,230,118,.9); }
+.meter-wrap { position: relative; padding-top: 36px; }
+.meter-tooltip { position: absolute; top: 0; left: 50%; transform: translateX(-50%); background: rgba(30,30,45,.95); border: 1px solid rgba(255,255,255,.2); backdrop-filter: blur(8px); color: #fff; font-size: .76rem; font-weight: 800; padding: 6px 14px; border-radius: 99px; white-space: nowrap; pointer-events: none; transition: left .45s cubic-bezier(.4,0,.2,1), border-color .45s, background .45s; z-index: 2; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+.meter-tooltip::after { content: ""; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-bottom: none; border-top-color: inherit; }
+#sweetMeter { -webkit-appearance: none; appearance: none; width: 100%; height: 12px; border-radius: 99px; background: linear-gradient(to right, #ff4d6d 0%, #ff9040 25%, #ffd740 50%, #a0e050 75%, #00e676 100%); outline: none; pointer-events: none; cursor: default; }
+#sweetMeter::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; border-radius: 50%; border: 4px solid rgba(255,255,255,.9); box-shadow: 0 2px 10px rgba(0,0,0,.6); transition: background .45s ease; background: #888; }
+#sweetMeter::-moz-range-thumb { width: 28px; height: 28px; border-radius: 50%; border: 4px solid rgba(255,255,255,.9); box-shadow: 0 2px 10px rgba(0,0,0,.6); transition: background .45s ease; background: #888; }
+
+/* 結果エリア */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.result-top { margin-bottom: 24px; animation: fadeUp .35s ease both; }
+.verdict-card { border-radius: var(--r); padding: 26px 20px; text-align: center; margin-bottom: 12px; border: 1px solid transparent; position: relative; overflow: hidden; }
+.verdict-card::before { content:""; position:absolute; inset:0; opacity:.1; z-index:0; }
+.verdict-card > * { position: relative; z-index: 1; }
+.verdict-card.good { background: rgba(0,230,118,.08); border-color: rgba(0,230,118,.28); } .verdict-card.good::before { background: var(--green); }
+.verdict-card.warn { background: rgba(255,215,64,.08); border-color: rgba(255,215,64,.28); } .verdict-card.warn::before { background: var(--yellow); }
+.verdict-card.bad  { background: rgba(255,77,109,.08); border-color: rgba(255,77,109,.28); } .verdict-card.bad::before { background: var(--red); }
+.vc-em { font-size: 3rem; margin-bottom: 6px; line-height: 1.1; }
+.vc-title { font-family: "Outfit", sans-serif; font-size: clamp(1.5rem, 4.5vw, 2.2rem); font-weight: 900; margin-bottom: 8px; }
+.verdict-card.good .vc-title { color: var(--green); } .verdict-card.warn .vc-title { color: var(--yellow); } .verdict-card.bad .vc-title { color: var(--red); }
+.vc-sub { font-size: .86rem; color: var(--text); line-height: 1.75; font-weight: 700; opacity: .9; }
+
+/* ボーダー金額（ツッコミ） */
+.border-card { border-radius: var(--r); overflow: hidden; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+.bc-eyebrow { background: rgba(245,197,66,.15); border: 1px solid rgba(245,197,66,.25); border-bottom: none; border-radius: var(--r) var(--r) 0 0; padding: 14px 20px; font-size: .82rem; font-weight: 700; color: var(--gold); line-height: 1.5; text-align: center; }
+.bc-val { font-family: "Outfit", sans-serif; font-size: clamp(3rem, 10vw, 4.8rem); font-weight: 900; color: var(--gold); background: rgba(245,197,66,.07); text-align: center; border: 1px solid rgba(245,197,66,.25); border-top: none; border-bottom: none; padding: 10px 20px 14px; line-height: 1.1; }
+.bc-tsukkomi { background: rgba(30,25,10,.8); border: 1px solid rgba(245,197,66,.25); border-top: none; border-radius: 0 0 var(--r) var(--r); padding: 14px 20px; font-size: .86rem; font-weight: 700; color: #fff; line-height: 1.7; font-style: italic; text-align: center; }
+
+/* サブ指標 */
+.key-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+@media(max-width: 440px) { .key-grid { grid-template-columns: 1fr; } }
+.key-card { border-radius: 14px; padding: 18px 14px; text-align: center; border: 1px solid transparent; }
+.key-card.purple { background: rgba(155,109,255,.08); border-color: rgba(155,109,255,.22); } .key-card.blue { background: rgba(0,212,255,.07); border-color: rgba(0,212,255,.18); }
+.key-label { font-size: .72rem; font-weight: 700; margin-bottom: 8px; }
+.key-card.purple .key-label { color: var(--purple); } .key-card.blue .key-label { color: var(--cyan); }
+.key-val { font-family: "Outfit", sans-serif; font-size: clamp(1.4rem,3.5vw,1.9rem); font-weight: 900; line-height: 1; margin-bottom: 6px; }
+.key-card.purple .key-val { color: var(--purple); } .key-card.blue .key-val { color: var(--cyan); }
+.key-note { font-size: .68rem; color: var(--muted); line-height: 1.5; }
+
+/* 残り口数 */
+.remain-box { background: rgba(0,212,255,.05); border: 1px solid rgba(0,212,255,.14); border-radius: var(--r); padding: 16px 18px; margin-bottom: 12px; }
+.remain-title { font-size: .74rem; font-weight: 700; color: var(--cyan); margin-bottom: 12px; }
+.remain-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+@media(max-width: 440px) { .remain-row { grid-template-columns: 1fr; } }
+.remain-item { text-align: center; }
+.remain-label { font-size: .64rem; color: var(--muted); margin-bottom: 4px; }
+.remain-val { font-family: "Outfit", sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--cyan); }
+
+/* 入力前ガイド */
+.empty-state { text-align: center; padding: 32px 20px; color: var(--muted); margin-bottom: 16px; }
+.es-icon { font-size: 3rem; margin-bottom: 12px; opacity: .4; }
+.es-text { font-size: .9rem; line-height: 1.9; }
+
+/* 入力フォーム共通 */
+.card { background: var(--bg2); border: 1px solid var(--bd); border-radius: var(--r); padding: 22px 18px; margin-bottom: 12px; backdrop-filter: blur(16px); transition: border-color .3s; }
+.card:hover { border-color: rgba(155,109,255,.16); }
+.opt-card { border-style: dashed; border-color: rgba(255,255,255,.05); }
+.sec-head { display: flex; align-items: center; gap: 9px; margin-bottom: 18px; }
+.sec-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 99px; font-size: .68rem; font-weight: 800; letter-spacing: .07em; }
+.sec-badge.req { background: linear-gradient(135deg, var(--purple2), var(--purple)); color: #fff; }
+.sec-badge.opt { background: rgba(255,255,255,.09); color: var(--muted); }
+.sec-title { font-size: .8rem; font-weight: 700; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.sec-title small { font-size: .66rem; font-weight: 400; color: rgba(238,238,245,.2); text-transform: none; letter-spacing: 0; margin-left: 5px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: .72rem; font-weight: 700; color: var(--muted); }
+.iw { position: relative; }
+.iw input { width: 100%; background: var(--bg3); border: 1px solid var(--bd); border-radius: 10px; color: var(--text); font-family: "Outfit", sans-serif; font-size: 1.05rem; font-weight: 700; padding: 12px 54px 12px 14px; outline: none; transition: border-color .2s, box-shadow .2s; }
+.iw input::-webkit-inner-spin-button, .iw input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.iw input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(155,109,255,.12); }
+.iu { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: .68rem; color: var(--muted); font-weight: 600; pointer-events: none; white-space: nowrap; }
+
+/* ティアブロック */
+.tier-block { border-radius: 14px; padding: 18px 14px; margin-bottom: 12px; border: 1px solid transparent; }
+.tier-block:last-child { margin-bottom: 0; }
+.req-block { background: rgba(155,109,255,.05); border-color: rgba(155,109,255,.18); }
+.opt-block { background: rgba(255,255,255,.02); border-color: rgba(255,255,255,.06); border-style: dashed; }
+.tier-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.tier-icon { font-size: 1.1rem; width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.tier-icon.small { background: rgba(155,109,255,.18); }
+.tier-icon.lose  { background: rgba(255,77,109,.15); }
+.tier-icon.mid   { background: rgba(0,212,255,.13); }
+.tier-name { font-size: .86rem; font-weight: 800; color: var(--text); }
+.req-tag { font-size: .6rem; font-weight: 800; letter-spacing: .06em; background: linear-gradient(135deg, var(--purple2), var(--purple)); color: #fff; padding: 2px 8px; border-radius: 99px; }
+.opt-tag { font-size: .6rem; font-weight: 800; letter-spacing: .06em; background: rgba(255,255,255,.08); color: var(--muted); padding: 2px 8px; border-radius: 99px; border: 1px solid rgba(255,255,255,.1); }
+.tier-hint { font-size: .68rem; color: rgba(238,238,245,.25); margin-left: 2px; }
+.tier-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width: 480px) { .tier-inputs { grid-template-columns: 1fr; } }
+.req-block .iw input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(155,109,255,.14); background: rgba(155,109,255,.1); }
+
+/* 入力用スライダーUI周り */
+.prob-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.prob-header label { margin-bottom: 0; }
+.prob-badge { font-size: .65rem; font-weight: 800; color: #fff; background: rgba(255,255,255,0.12); padding: 2px 8px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.2); }
+.prob-badge.is-empty { display: none; }
+.prob-slider-wrap { margin-top: 12px; padding: 0 4px; }
+.prob-slider { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; outline: none; }
+.prob-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #aaa; border: 3px solid var(--bg); box-shadow: 0 2px 6px rgba(0,0,0,0.4); cursor: ew-resize; transition: transform 0.1s; }
+.prob-slider::-webkit-slider-thumb:active { transform: scale(1.15); }
+.prob-slider::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #aaa; border: 3px solid var(--bg); box-shadow: 0 2px 6px rgba(0,0,0,0.4); cursor: ew-resize; transition: transform 0.1s; }
+.prob-slider::-moz-range-thumb:active { transform: scale(1.15); }
+.purple-slider::-webkit-slider-thumb { background: var(--purple); }
+.purple-slider::-moz-range-thumb { background: var(--purple); }
+.red-slider::-webkit-slider-thumb { background: var(--red); }
+.red-slider::-moz-range-thumb { background: var(--red); }
+.cyan-slider::-webkit-slider-thumb { background: var(--cyan); }
+.cyan-slider::-moz-range-thumb { background: var(--cyan); }
+
+footer { text-align: center; padding: 40px 0 20px; font-size: .7rem; color: rgba(238,238,245,.2); line-height: 1.8; }
+
+footer {
+  text-align: center;
+  padding: 40px 0 20px;
+  font-size: 0.85rem;      /* 文字を大きく */
+  font-weight: 700;        /* 文字を太く */
+  color: rgba(238,238,245, 0.7); /* 文字を明るく見やすく */
+  line-height: 1.8;
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- 【HTML】ここに画面に表示する部品（ボタンや入力欄）を書く -->
+  <div class="container">
+    <h1>マイツール</h1>
+　　　　<p><div class="wrap">
+
+  <header>
+    <div class="badge">🎴 オリパ攻略ツール</div>
+    <h1>オリパ甘さ判定ツール</h1>
+    <p>数値をスライダーで直感的に調整！<strong>「引くべきか、やめとくべきか」</strong>をぶった斬ります</p>
+  </header>
+
+  <!-- ===== 全体甘さメーター（結果） ===== -->
+  <div class="meter-card">
+    <div class="meter-labels">
+      <span class="meter-label-left">💀 渋い（辛口）</span>
+      <span class="meter-label-right">激アツ（甘口）🎉</span>
+    </div>
+    <div class="meter-wrap">
+      <div class="meter-tooltip" id="meterTooltip">必須項目を入力してください</div>
+      <input type="range" id="sweetMeter" min="0" max="100" value="50" readonly />
+    </div>
+  </div>
+
+  <!-- ===== 判定結果 ===== -->
+  <div id="resultTop" class="result-top" style="display:none">
+
+    <!-- 判定カード -->
+    <div class="verdict-card" id="verdictCard">
+      <div class="vc-em"    id="vcEm"></div>
+      <div class="vc-title" id="vcTitle"></div>
+      <div class="vc-sub"   id="vcSub"></div>
+    </div>
+
+    <!-- ボーダー金額（ツッコミ付き） -->
+    <div class="border-card">
+      <div class="bc-eyebrow">プラスにするために、的中させなければならない景品の価値</div>
+      <div class="bc-val" id="bcVal">—</div>
+      <div class="bc-tsukkomi" id="bcTsukkomi"></div>
+    </div>
+
+    <!-- サブ指標 -->
+    <div class="key-grid">
+      <div class="key-card purple">
+        <div class="key-label">🔑 1回あたりの平均回収</div>
+        <div class="key-val"  id="kRecoverVal">—</div>
+        <div class="key-note" id="kRecoverNote">コイン</div>
+      </div>
+      <div class="key-card blue">
+        <div class="key-label">💸 大当たりへの実質コスト</div>
+        <div class="key-val"  id="kCostVal">—</div>
+        <div class="key-note">コイン / 回</div>
+      </div>
+    </div>
+
+    <!-- 残り口数補正 -->
+    <div class="remain-box" id="remainBox" style="display:none">
+      <div class="remain-title">📊 残り口数から見た期待値</div>
+      <div class="remain-row">
+        <div class="remain-item">
+          <div class="remain-label">残り総額</div>
+          <div class="remain-val" id="rTotal">—</div>
+        </div>
+        <div class="remain-item">
+          <div class="remain-label">期待回収額</div>
+          <div class="remain-val" id="rRecover">—</div>
+        </div>
+        <div class="remain-item">
+          <div class="remain-label">期待実質出費</div>
+          <div class="remain-val" id="rCost">—</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== 入力前ガイド ===== -->
+  <div class="empty-state" id="emptyState">
+    <div class="es-icon">📝</div>
+    <div class="es-text">
+      <strong>「1回あたりの価格」「小当たり」</strong>を入力すると、<br>
+      この場所に判定結果とツッコミがリアルタイムで表示されます。
+    </div>
+  </div>
+
+  <!-- ===== 入力フォーム ===== -->
+  <div class="card">
+    <div class="sec-head">
+      <span class="sec-badge req">必須</span>
+      <span class="sec-title">基本情報</span>
+    </div>
+
+    <div class="field" style="margin-bottom:18px">
+      <label for="costPerSpin">1回あたりの価格</label>
+      <div class="iw">
+        <input type="number" id="costPerSpin" placeholder="例：280" min="1" inputmode="numeric" />
+        <span class="iu">円</span>
+      </div>
+    </div>
+
+    <!-- 小当たり -->
+    <div class="tier-block req-block">
+      <div class="tier-header">
+        <span class="tier-icon small">⚡</span>
+        <span class="tier-name">小当たり</span>
+        <span class="tier-badge req-tag">必須</span>
+      </div>
+      <div class="tier-inputs">
+        <div class="field">
+          <label>戻ってくるコイン数</label>
+          <div class="iw">
+            <input type="number" id="smallCoin" placeholder="320" min="0" inputmode="numeric" />
+            <span class="iu">コイン</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="prob-header">
+            <label>確率</label>
+            <span class="prob-badge" id="smallProbBadge"></span>
+          </div>
+          <div class="iw">
+            <!-- テキスト入力（分数対応） -->
+            <input type="text" id="smallProbTxt" placeholder="例: 75.5 または 3/4" inputmode="text" />
+          </div>
+          <!-- スライダー入力 -->
+          <div class="prob-slider-wrap">
+            <input type="range" id="smallProbSlider" class="prob-slider purple-slider" min="0" max="100" step="0.1" value="0" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ハズレ -->
+    <div class="tier-block opt-block lose-block">
+      <div class="tier-header">
+        <span class="tier-icon lose">💀</span>
+        <span class="tier-name">ハズレ</span>
+        <span class="tier-badge opt-tag">任意</span>
+        <span class="tier-hint">わかれば入力してください</span>
+      </div>
+      <div class="tier-inputs">
+        <div class="field">
+          <label>戻ってくるコイン数</label>
+          <div class="iw">
+            <input type="number" id="loseCoin" placeholder="わかれば入力" min="0" inputmode="numeric" />
+            <span class="iu">コイン</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="prob-header">
+            <label>確率</label>
+            <span class="prob-badge" id="loseProbBadge"></span>
+          </div>
+          <div class="iw">
+            <input type="text" id="loseProbTxt" placeholder="未入力で自動計算" inputmode="text" />
+          </div>
+          <div class="prob-slider-wrap">
+            <input type="range" id="loseProbSlider" class="prob-slider red-slider" min="0" max="100" step="0.1" value="0" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中当たり -->
+    <div class="tier-block opt-block">
+      <div class="tier-header">
+        <span class="tier-icon mid">✨</span>
+        <span class="tier-name">中当たり</span>
+        <span class="tier-badge opt-tag">任意</span>
+        <span class="tier-hint">ない場合は空欄でOK</span>
+      </div>
+      <div class="tier-inputs">
+        <div class="field">
+          <label>戻ってくるコイン数</label>
+          <div class="iw">
+            <input type="number" id="midCoin" placeholder="未入力でOK" min="0" inputmode="numeric" />
+            <span class="iu">コイン</span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="prob-header">
+            <label>確率</label>
+            <span class="prob-badge" id="midProbBadge"></span>
+          </div>
+          <div class="iw">
+            <input type="text" id="midProbTxt" placeholder="未入力でOK" inputmode="text" />
+          </div>
+          <div class="prob-slider-wrap">
+            <input type="range" id="midProbSlider" class="prob-slider cyan-slider" min="0" max="100" step="0.1" value="0" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card opt-card">
+    <div class="sec-head">
+      <span class="sec-badge opt">任意</span>
+      <span class="sec-title">口数情報 <small>入力すると残り期待値も表示</small></span>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label for="totalCount">総口数</label>
+        <div class="iw">
+          <input type="number" id="totalCount" placeholder="100" min="1" inputmode="numeric" />
+          <span class="iu">口</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="remainCount">残り口数</label>
+        <div class="iw">
+          <input type="number" id="remainCount" placeholder="60" min="1" inputmode="numeric" />
+          <span class="iu">口</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+   <footer>
+    <p>本ツールは参考情報の提供を目的としています。<br>オリパはエンタメです☆（ゝω・）vｷｬﾋﾟ<br>予算内で楽しみましょう。<br>
+      
+      <br>このツールは主に、「オリくじ」さんの入場制限台を打つかどうかをヌシが判断するために作りました
+      <br>応用が効くと思うのでガンガン使ってください
+      <br>
+      <br>
+    </p>
+  </footer>
+</div></p>
+    <button id="myButton">クリック</button>
+  </div>
+
+  <!-- 【JavaScript】ここに動きや計算のプログラムをすべて書く -->
+  <script>
+
+const $ = id => document.getElementById(id);
+
+document.addEventListener('DOMContentLoaded', () => {
+  // テキストとスライダーの同期セットアップ
+  setupSyncProb('smallProbTxt', 'smallProbSlider', 'smallProbBadge');
+  setupSyncProb('loseProbTxt', 'loseProbSlider', 'loseProbBadge');
+  setupSyncProb('midProbTxt', 'midProbSlider', 'midProbBadge');
+
+  // その他の入力項目のイベント
+  ['costPerSpin', 'smallCoin', 'loseCoin', 'midCoin', 'totalCount', 'remainCount']
+    .forEach(id => $(id).addEventListener('input', compute));
+
+  compute();
+});
+
+// ---------------------------
+// テキスト入力 ⇔ スライダー連動ロジック
+// ---------------------------
+function setupSyncProb(txtId, sliderId, badgeId) {
+  const txt = $(txtId);
+  const slider = $(sliderId);
+  
+  txt.addEventListener('input', () => {
+    const parsed = parseProb(txt.value);
+    if (parsed !== null && parsed >= 0 && parsed <= 100) {
+      slider.value = parsed;
+    } else {
+      slider.value = 0;
+    }
+    compute();
+  });
+
+  txt.addEventListener('blur', () => {
+    const valStr = txt.value.trim();
+    if (valStr && !valStr.includes('/') && !valStr.includes('%')) {
+      const parsed = parseProb(valStr);
+      if (parsed !== null) txt.value = parsed + '%';
+    }
+  });
+
+  slider.addEventListener('input', () => {
+    let val = parseFloat(slider.value);
+    // マグネット機能：整数の近く（±0.4）なら整数に吸着させる
+    if (Math.abs(val - Math.round(val)) < 0.4) {
+      val = Math.round(val);
+      slider.value = val;
+    }
+    // スライダー操作時は％をつけてテキストボックスに反映
+    txt.value = val + '%';
+    compute();
+  });
+}
+
+function parseProb(valStr) {
+  if (!valStr) return null;
+  valStr = valStr.trim().replace(/%/g, '');
+  if (valStr.includes('/')) {
+    const parts = valStr.split('/');
+    if (parts.length === 2) {
+      const n = parseFloat(parts[0]);
+      const d = parseFloat(parts[1]);
+      if (!isNaN(n) && !isNaN(d) && d !== 0) {
+        return (n / d) * 100;
+      }
+    }
+  }
+  const n = parseFloat(valStr);
+  return isNaN(n) ? null : n;
+}
+
+function formatProbBadge(parsedPct, rawStr) {
+  if (parsedPct === null || isNaN(parsedPct) || parsedPct <= 0 || parsedPct > 100) return '';
+  const str = String(rawStr).trim();
+  if (str.includes('/')) {
+    return `${parseFloat(parsedPct.toFixed(2))}%`;
+  } else {
+    const frac = 100 / parsedPct;
+    const fStr = (frac % 1 === 0) ? frac.toString() : frac.toFixed(1);
+    return `1 / ${fStr}`;
+  }
+}
+
+function vNum(id) {
+  const n = parseFloat($(id).value);
+  return isNaN(n) ? null : n;
+}
+function fmt(n)         { return Math.round(n).toLocaleString(); }
+function fmtDec(n, d=1) { return (+n).toFixed(d); }
+
+function posToColor(pos) {
+  const stops = [
+    [255,  77, 109],  // 0: 赤
+    [255, 144,  64],  // 25: オレンジ
+    [255, 215,  64],  // 50: 黄
+    [160, 224,  80],  // 75: 黄緑
+    [  0, 230, 118],  // 100: 緑
+  ];
+  const idx = (pos / 100) * (stops.length - 1);
+  const Math_floor = Math.floor(idx);
+  const lo = Math.max(0, Math.min(Math_floor, stops.length - 2));
+  const hi = lo + 1;
+  const t  = idx - lo;
+  const [r1,g1,b1] = stops[lo];
+  const [r2,g2,b2] = stops[hi];
+  return `rgb(${Math.round(r1+(r2-r1)*t)},${Math.round(g1+(g2-g1)*t)},${Math.round(b1+(b2-b1)*t)})`;
+}
+
+function tsukkomi(breakEven, cost, realCost) {
+  if (realCost <= 0) return '「え、これ引くだけで平均して儲かる設計じゃん！」……本当にそんな甘い話あるの？';
+  const ratio = breakEven / cost;
+  if (ratio < 3)   return '「小当たりだけでもう元が取れそう……」設定ミスを疑うレベルです。';
+  if (ratio < 7)   return '「この金額なら、普通に当たる景品で余裕で超えるじゃん！」優良オリパの予感。';
+  if (ratio < 15)  return '「大当たりのラインナップ次第では、全然勝負できる金額だね」要確認です。';
+  if (ratio < 25)  return '「……いや、そんな価値の大当たり、そうそう入ってないぞ？」深追いは禁物。';
+  if (ratio < 40)  return '「それ、PSA10のトップレアでもギリギリじゃないですか……？」かなりキツい設定。';
+  if (ratio < 80)  return '「いや、そんなの的中させられんわ！！」……そんな超高額な景品、バナーに入ってません。';
+  return '「狂気の設定」……運営に寄付するつもりで引く以外、そっとタブを閉じましょう。';
+}
+
+// ---------------------------
+// ツッコミ・演出
+// ---------------------------
+function tsukkomi(borderAmount, cost, realCost, isTotal) {
+  if (realCost <= 0) return '「え、これ引くだけで平均して儲かる設計じゃん！」……バグを疑うレベル。';
+  
+  const lossRatio = realCost / cost; // 1回あたりの損失率
+  
+  if (isTotal) {
+    if (lossRatio < 0.2) return '「箱買いしてもこの程度のマイナスで済むなら、大当たりの価値次第で全然プラスになる優良設定！」';
+    if (lossRatio < 0.5) return '「このマイナス額と、目玉景品の合計相場を比べてみてください。目玉が上回っていれば買いです。」';
+    if (lossRatio < 0.8) return '「かなり持っていかれます。大当たり枠に超高額カードがゴロゴロ入っていないと割に合いません。」';
+    return '「箱買いしたら大惨事！トップレアが数枚あっても到底捲れない、運営丸儲けの設定です。」';
+  } else {
+    if (lossRatio < 0.2) return '「100連してもこれしか削られないの！？ 1〜2万円の当たりを引くだけで捲れる超甘口設定！」';
+    if (lossRatio < 0.5) return '「100連の負債としては標準的。バナーにこの金額以上の景品がちゃんと入っているか確認を。」';
+    if (lossRatio < 0.8) return '「100連でこの負債は結構痛い。10万〜20万クラスのトップレアを引かないと致命傷になります。」';
+    return '「100回引くだけでこのマイナス！？ 宝くじ並の極悪設定。絶対に深追いしてはいけません。」';
+  }
+}
+
+function verdictText(realCost, cost) {
+  const lossRatio = realCost / cost; 
+  if (realCost <= 0) return { cls:'good', em:'🎉', title:'超甘！無条件で引くべき', sub:`実質出費がマイナス（${fmtDec(realCost)}コイン）。理論上、引けば引くほど得をするバグレベルの設定です。` };
+  if (lossRatio < 0.25) return { cls:'good', em:'🎯', title:'激アツ！優良な甘口設定', sub:`ベース還元率が非常に高く、傷が浅く済みます。大当たりのハードルが低く、狙いやすいオリパです。` };
+  if (lossRatio < 0.55) return { cls:'warn', em:'🤔', title:'ボーダーライン…',       sub:`一般的な還元率。「必要な大当たりの価値」以上の景品が十分に入っているかが勝負の分かれ目です。` };
+  if (lossRatio < 0.8)  return { cls:'bad',  em:'🚨', title:'渋い！見送り推奨（辛口）', sub:`ベースの回収率が悪く、ハズレが続くと一瞬で資金が溶けます。トップレア狙いの特攻以外は危険。` };
+  return                { cls:'bad',  em:'💀', title:'ドハズレ設定。全力で逃げろ', sub:`還元率が最悪レベル。お金をドブに捨てるのと同じです。よほど運に自信がある人以外は手を出さないで。` };
+}
+
+function updateMeterUI(pos, text, color) {
+  const meter   = $('sweetMeter');
+  const tooltip = $('meterTooltip');
+  
+  meter.value = pos;
+  
+  let styleEl = document.getElementById('_meterStyle');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = '_meterStyle';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = `
+    #sweetMeter::-webkit-slider-thumb { background: ${color} !important; border-color: rgba(255,255,255,0.9) !important; }
+    #sweetMeter::-moz-range-thumb     { background: ${color} !important; border-color: rgba(255,255,255,0.9) !important; }
+  `;
+
+  const thumbR = 14; 
+  const pct = pos / 100;
+  tooltip.style.left = `calc(${pct * 100}% + ${thumbR - pct * 2 * thumbR}px)`;
+  tooltip.style.borderColor = color;
+  tooltip.style.borderTopColor = color;
+  tooltip.textContent = text;
+}
+
+// ---------------------------
+// メイン計算処理
+// ---------------------------
+function compute() {
+  const cost      = vNum('costPerSpin');
+  const smallCoin = vNum('smallCoin');
+  const smallProbStr = $('smallProbTxt').value;
+  const smallProb = parseProb(smallProbStr);
+
+  const sBadge = $('smallProbBadge');
+  if (smallProb !== null) {
+    sBadge.textContent = formatProbBadge(smallProb, smallProbStr);
+    sBadge.classList.remove('is-empty');
+  } else {
+    sBadge.classList.add('is-empty');
+  }
+
+  if (cost === null || smallCoin === null || smallProb === null) {
+    $('resultTop').style.display  = 'none';
+    $('emptyState').style.display = 'block';
+    updateMeterUI(50, '価格と小当たり（コイン・確率）を入力してください', '#888');
+    return;
+  }
+
+  $('resultTop').style.display  = 'block';
+  $('emptyState').style.display = 'none';
+
+  const loseCoin = vNum('loseCoin');
+  const loseProbStr = $('loseProbTxt').value;
+  const loseProb = parseProb(loseProbStr);
+  const midCoin  = vNum('midCoin');
+  const midProbStr = $('midProbTxt').value;
+  const midProb  = parseProb(midProbStr);
+  
+  const totalCnt = vNum('totalCount');
+  const remainCnt = vNum('remainCount');
+
+  const sp = smallProb / 100;
+  const mp = midProb !== null ? midProb / 100 : 0;
+  
+  let lp = 0;
+  const lBadge = $('loseProbBadge');
+  if (loseProb !== null) {
+    lp = loseProb / 100;
+    lBadge.textContent = formatProbBadge(loseProb, loseProbStr);
+    lBadge.classList.remove('is-empty');
+  } else {
+    lp = Math.max(0, 1 - sp - mp);
+    lBadge.textContent = `自動計算: ${fmtDec(lp*100)}%`;
+    lBadge.classList.remove('is-empty');
+    $('loseProbSlider').value = lp * 100; 
+  }
+
+  const mBadge = $('midProbBadge');
+  if (midProb !== null) {
+    mBadge.textContent = formatProbBadge(midProb, midProbStr);
+    mBadge.classList.remove('is-empty');
+  } else {
+    mBadge.classList.add('is-empty');
+  }
+  
+  const lc = loseCoin !== null ? loseCoin : 0;
+  const mc = midCoin  !== null ? midCoin  : 0;
+
+  // 実計算
+  const avgRecover = (lc * lp) + (smallCoin * sp) + (mc * mp);
+  const realCost   = cost - avgRecover;
+  
+  // ボーダー計算（総口数がある場合は全部買い、ない場合は100連）
+  let borderAmount = 0;
+  let isTotal = false;
+  if (totalCnt !== null && totalCnt > 0) {
+    document.querySelector('.bc-eyebrow').textContent = `全部買い（${fmt(totalCnt)}口）した場合、大当たり枠に求められる合計価値`;
+    borderAmount = realCost * totalCnt;
+    isTotal = true;
+  } else {
+    document.querySelector('.bc-eyebrow').textContent = `100連（まとめ引き）した場合、大当たりで取り返すべき額（実質負債）`;
+    borderAmount = realCost * 100;
+  }
+
+  // メーターのポジション (ベース還元率%と完全にリンク)
+  let pos = 0;
+  if (realCost <= 0) {
+    pos = 100;
+  } else {
+    const returnRate = avgRecover / cost;
+    pos = Math.max(0, Math.min(100, Math.round(returnRate * 100)));
+  }
+  const levels = [
+    [0,  20,  '💀 ドハズレ'], 
+    [20, 35,  '🚨 かなり渋い'], 
+    [35, 45,  '😰 渋め'],
+    [45, 60,  '⚖️ ボーダーライン'], 
+    [60, 75,  '🙂 やや甘い'], 
+    [75, 90,  '🎯 甘い！'],
+    [90, 101, '🎉 激アツ！'],
+  ];
+  const found = levels.find(([lo, hi]) => pos >= lo && pos < hi);
+  updateMeterUI(pos, found ? found[2] : '—', posToColor(pos));
+
+  // 結果反映
+  $('bcVal').textContent      = '¥' + fmt(borderAmount);
+  $('bcTsukkomi').textContent = tsukkomi(borderAmount, cost, realCost, isTotal);
+  
+  $('kRecoverVal').textContent = fmtDec(avgRecover) + ' コイン';
+  $('kCostVal').textContent    = fmtDec(realCost)   + ' コイン';
+
+  let noteArr = [`小当たり${fmtDec(sp*100)}%`, `ハズレ${fmtDec(lp*100)}%`];
+  if (mp > 0) noteArr.splice(1, 0, `中当たり${fmtDec(mp*100)}%`);
+  $('kRecoverNote').textContent = noteArr.join(' / ') + ' で計算';
+
+  const rb = $('remainBox');
+  if (totalCnt !== null && remainCnt !== null && remainCnt <= totalCnt) {
+    const rTotal   = remainCnt * cost;
+    const rRecover = remainCnt * avgRecover;
+    const rCost    = rTotal - rRecover;
+    $('rTotal').textContent   = '¥' + fmt(rTotal);
+    $('rRecover').textContent = '¥' + fmt(rRecover);
+    $('rCost').textContent    = '¥' + fmt(rCost);
+    rb.style.display = 'block';
+  } else {
+    rb.style.display = 'none';
+  }
+
+  const vc = $('verdictCard');
+  vc.classList.remove('good','warn','bad');
+  const vd = verdictText(realCost, cost);
+  vc.classList.add(vd.cls);
+  $('vcEm').textContent    = vd.em;
+  $('vcTitle').textContent = vd.title;
+  $('vcSub').textContent   = vd.sub;
+}
+
+  </script>
+
+</body>
+</html>
